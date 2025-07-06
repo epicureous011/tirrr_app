@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "613300918152",
+    "project_id": "tirrr-4df18",
+    "storage_bucket": "tirrr-4df18.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:613300918152:android:9f505174f11d583add4c3d",
+        "android_client_info": {
+          "package_name": "com.example.tirrr_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFc69EurmjSBkn2jZRBDcXH7C4Si8otpI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
