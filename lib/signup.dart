@@ -1,4 +1,5 @@
 import 'package:flutter/gestures.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -31,17 +32,29 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
   }
 
-  void _onSignupPressed() {
+  Future<void> _onSignupPressed() async {
     if (_formKey.currentState!.validate()) {
-      // TODO: Implement signup logic
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Hesap oluşturuluyor...')),
-      );
+      try {
+        // Create user with Firebase Authentication
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _phoneController.text.trim(),
+          password: _passwordController.text,
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Hesap başarıyla oluşturuldu!')),
+        );
+        // Navigate to home screen after successful signup
+        Navigator.pushReplacementNamed(context, '/');
+      } on FirebaseAuthException catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message ?? 'Bir hata oluştu')),
+        );
+      }
     }
   }
 
   void _onLoginTap() {
-    // TODO: Navigate back to login screen
+    Navigator.pushReplacementNamed(context, '/login');
   }
 
   void _onPrivacyTap() {
@@ -72,17 +85,17 @@ class _SignupScreenState extends State<SignupScreen> {
                   children: [
                     TextFormField(
                       controller: _phoneController,
-                      keyboardType: TextInputType.phone,
+                      keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
-                        hintText: 'Telefon Numaranız',
-                        prefixIcon: const Icon(Icons.phone),
+                        hintText: 'E-posta Adresiniz',
+                        prefixIcon: const Icon(Icons.email),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                         ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Telefon numaranızı girin';
+                          return 'E-posta adresinizi girin';
                         }
                         return null;
                       },

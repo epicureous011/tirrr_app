@@ -4,8 +4,16 @@ import 'package:flutter/material.dart';
 import 'login.dart';
 import 'signup.dart';
 import 'forgot_password.dart';
+import 'homepage.dart';
+import 'settings.dart';
 
-void main() {
+
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -25,9 +33,11 @@ class MyApp extends StatelessWidget {
       ),
       home: const HomeScreen(),
       routes: {
+        '/home': (context) => const HomePage(),
         '/login': (context) => const LoginScreen(),
         '/signup': (context) => const SignupScreen(),
         '/forgot-password': (context) => const ForgotPasswordScreen(),
+        '/settings': (context) => const SettingsPage()
       },
     );
   }
@@ -69,6 +79,14 @@ class HomeScreen extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () => Navigator.pushNamed(context, '/forgot-password'),
                 child: const Text('Forgot Password'),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pushNamed(context, '/settings'),
+                child: const Text('Ayarlar'),
               ),
             ),
           ],

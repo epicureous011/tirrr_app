@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({Key? key}) : super(key: key);
@@ -10,6 +11,7 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _phoneController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void dispose() {
@@ -17,17 +19,31 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
-  void _onSendPressed() {
+  Future<void> _onSendPressed() async {
     if (_formKey.currentState!.validate()) {
-      // TODO: Implement password reset logic (send SMS with new password)
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Yeni şifreniz gönderiliyor...')),
-      );
+      try {
+        await _auth.sendPasswordResetEmail(
+          email: _phoneController.text.trim(),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Şifre sıfırlama e-postası gönderildi.')),
+        );
+      } on FirebaseAuthException catch (e) {
+        String message;
+        if (e.code == 'user-not-found') {
+          message = 'Bu e-posta adresi ile kayıtlı kullanıcı bulunamadı.';
+        } else {
+          message = 'Bir hata oluştu: ${e.message}';
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+      }
     }
   }
 
   void _onLoginTap() {
-    // TODO: Navigate back to login screen
+    Navigator.pushReplacementNamed(context, '/login');
   }
 
   @override
@@ -54,17 +70,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   children: [
                     TextFormField(
                       controller: _phoneController,
-                      keyboardType: TextInputType.phone,
+                      keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
-                        hintText: 'Telefon Numaranız',
-                        prefixIcon: const Icon(Icons.phone),
+                        hintText: 'E-posta Adresiniz',
+                        prefixIcon: const Icon(Icons.email),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                         ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Telefon numaranızı girin';
+                          return 'E-posta adresinizi girin';
                         }
                         return null;
                       },
