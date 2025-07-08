@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({Key? key}) : super(key: key);
@@ -23,6 +24,20 @@ class AppDrawer extends StatelessWidget {
             _buildDrawerItem(context, 'Profil', '/profile'),
             const Divider(height: 1, color: Colors.grey),
             _buildDrawerItem(context, 'Ayarlar', '/settings'),
+            const Divider(height: 1, color: Colors.grey),
+            ListTile(
+              title: Text(
+                'Çıkış Yap',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              onTap: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+              },
+            ),
           ],
         ),
       ),

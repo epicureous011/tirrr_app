@@ -54,11 +54,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _onForgotPassword() {
-    // TODO: Navigate to forgot password screen
+    Navigator.pushNamed(context, '/forgot-password');
   }
 
   void _onCreateAccount() {
-    // TODO: Navigate to sign up screen
+    Navigator.pushNamed(context, '/signup');
   }
 
   @override
