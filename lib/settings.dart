@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import '../components/app_header.dart';
 import '../components/drawer.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 const Color _primaryBlue = Color(0xFF1E2A78);
@@ -100,7 +101,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               trailing: const Icon(Icons.chevron_right, color: Colors.grey, size: 24),
-              onTap: () => Navigator.pushNamed(context, '/contact-us'),
+              onTap: () async {
+                final Uri whatsappUri = Uri.parse('https://wa.me/+905368644020');
+                if (await canLaunchUrl(whatsappUri)) {
+                  await launchUrl(whatsappUri);
+                }
+              },
             ),
           ],
         ),

@@ -70,17 +70,31 @@ class ListingItem {
 }
 
 // Örnek veri
+// Örnek veri
 const List<ListingItem> aktifItems = [
-  ListingItem(id: 1, fromTo: 'Nereden→Nereye', price: '16000+KDV', date: '15 Mart'),
-  ListingItem(id: 2, fromTo: 'Nereden→Nereye', price: '16000+KDV', date: '15 Mart'),
-  ListingItem(id: 3, fromTo: 'Nereden→Nereye', price: '16000+KDV', date: '15 Mart'),
-  ListingItem(id: 4, fromTo: 'Nereden→Nereye', price: '16000+KDV', date: '15 Mart'),
-  ListingItem(id: 5, fromTo: 'Nereden→Nereye', price: '16000+KDV', date: '15 Mart'),
-  ListingItem(id: 6, fromTo: 'Nereden→Nereye', price: '16000+KDV', date: '15 Mart'),
+  ListingItem(id: 1, fromTo: 'İstanbul→Ankara', price: '16.000 ', date: '15 Mart'),
+  ListingItem(id: 2, fromTo: 'İzmir→Bursa',    price: '14.500 ', date: '18 Mart'),
+  ListingItem(id: 3, fromTo: 'Antalya→Adana',  price: '12.000 ', date: '20 Mart'),
+  ListingItem(id: 4, fromTo: 'Konya→Kayseri',  price: '11.000 ', date: '22 Mart'),
+  ListingItem(id: 5, fromTo: 'Eskişehir→Edirne',price: '13.500 ', date: '25 Mart'),
+  ListingItem(id: 6, fromTo: 'Trabzon→Rize',   price: '9.800 ',  date: '28 Mart'),
 ];
 
-const List<ListingItem> bekleyenItems = [];
-const List<ListingItem> gecmisItems = [];
+const List<ListingItem> bekleyenItems = [
+  ListingItem(id: 7,  fromTo: 'Ankara→İzmir',    price: '15.200 ', date: '5 Nisan'),
+  ListingItem(id: 8,  fromTo: 'Bursa→İstanbul',   price: '13.750 ', date: '7 Nisan'),
+  ListingItem(id: 9,  fromTo: 'Adana→Antalya',   price: '11.500 ', date: '10 Nisan'),
+  ListingItem(id: 10, fromTo: 'Kayseri→Konya',   price: '10.900 ', date: '12 Nisan'),
+];
+
+const List<ListingItem> gecmisItems = [
+  ListingItem(id: 11, fromTo: 'Rize→Trabzon',    price: '9.500 ',  date: '1 Mart'),
+  ListingItem(id: 12, fromTo: 'Edirne→Eskişehir', price: '13.200 ', date: '3 Mart'),
+  ListingItem(id: 13, fromTo: 'Kayseri→Bursa',   price: '12.300 ', date: '6 Mart'),
+  ListingItem(id: 14, fromTo: 'Antalya→İzmir',   price: '14.000 ', date: '9 Mart'),
+];
+
+
 
 // Liste sekmesi widget’ı
 class _ListingTab extends StatelessWidget {
@@ -140,7 +154,7 @@ class _ListingTab extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        item.price,
+                        item.price + "₺ + KDV",
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.normal,

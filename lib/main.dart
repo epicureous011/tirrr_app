@@ -9,7 +9,9 @@ import 'homepage.dart';
 import 'settings.dart';
 import 'listing.dart';
 import 'create-listing.dart';
-import 'home-screen.dart';
+import 'search-listing.dart';
+import 'search-listing-result.dart';
+import 'profile.dart';
 
 
 
@@ -55,6 +57,10 @@ class MyApp extends StatelessWidget {
         '/settings': (context) => const SettingsPage(),
         '/listing': (context) => const ListingPage(),
         '/post-listing': (context) => const CreateListingPage(),
+        '/search-listing': (context) => const SearchListingPage(),
+        '/search-listing-result': (context) => const SearchListingResultPage(),
+        '/profile': (context) => const ProfilePage(),
+
       },
     );
   }
