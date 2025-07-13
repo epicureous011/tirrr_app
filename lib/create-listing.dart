@@ -53,11 +53,11 @@ class _CreateListingPageState extends State<CreateListingPage> {
               _buildField('Bir konum belirleyin', _destinationController),
               const SizedBox(height: 16),
 
-              _buildLabel('Ağırlık'),
+              _buildLabel('Ağırlık(Ton)'),
               _buildField('Bir ağırlık yazın', _weightController),
               const SizedBox(height: 16),
 
-              _buildLabel('Hacim'),
+              _buildLabel('Hacim(m³)'),
               _buildField('Bir hacim belirleyin', _volumeController),
               const SizedBox(height: 16),
 

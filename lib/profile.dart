@@ -17,7 +17,6 @@ class _ProfilePageState extends State<ProfilePage> {
   final _addressController = TextEditingController();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
-  final _birthDateController = TextEditingController();
   final _vehicleTypeController = TextEditingController();
   final _trailerTypeController = TextEditingController();
   final _floorType1Controller = TextEditingController();
@@ -40,9 +39,7 @@ class _ProfilePageState extends State<ProfilePage> {
         _addressController.text     = data['city']        as String? ?? '';
         _plateController.text       = data['plate']       as String? ?? '';
         _firstNameController.text   = data['firstName']   as String? ?? '';
-        _lastNameController.text    = data['secondName']  as String? ?? '';
-        _birthDateController.text   = data['birthDate']   as String? ?? '';
-        _vehicleTypeController.text = data['vehicleType'] as String? ?? '';
+        _lastNameController.text    = data['secondName']  as String? ?? '';        _vehicleTypeController.text = data['vehicleType'] as String? ?? '';
         _trailerTypeController.text = data['backOfVehicleType'] as String? ?? '';
         _floorType1Controller.text  = data['vehicleBaseType']   as String? ?? '';
         _maxLoadController.text     = data['maxWeight'] as String? ?? '';
@@ -193,7 +190,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           'plate':       _plateController.text,
                           'firstName':   _firstNameController.text,
                           'secondName':  _lastNameController.text,
-                          'birthDate':   _birthDateController.text,
                           'vehicleType': _vehicleTypeController.text,
                           'backOfVehicleType': _trailerTypeController.text,
                           'vehicleBaseType':   _floorType1Controller.text,
