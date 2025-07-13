@@ -15,11 +15,13 @@ import 'search-listing.dart';
 import 'search-listing-result.dart';
 import 'profile.dart';
 
-
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('tr_TR', null);
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -32,6 +34,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      locale: const Locale('tr', 'TR'),
+      supportedLocales: const [
+        Locale('en', 'US'),
+        Locale('tr', 'TR'),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       title: 'Logistics App',
       theme: ThemeData(
         primaryColor: const Color(0xFF1E2A78),
@@ -70,4 +82,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

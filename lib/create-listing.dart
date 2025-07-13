@@ -89,9 +89,10 @@ class _CreateListingPageState extends State<CreateListingPage> {
                     initialDate: DateTime.now(),
                     firstDate: DateTime(2000),
                     lastDate: DateTime(2100),
+                    locale: const Locale('tr', 'TR'),
                   );
                   if (picked != null) {
-                    _startDateController.text = DateFormat('dd.MM.yyyy').format(picked);
+                    _startDateController.text = DateFormat('dd MMMM yyyy', 'tr_TR').format(picked);
                   }
                 },
               ),
@@ -121,9 +122,10 @@ class _CreateListingPageState extends State<CreateListingPage> {
                     initialDate: DateTime.now(),
                     firstDate: DateTime(2000),
                     lastDate: DateTime(2100),
+                    locale: const Locale('tr', 'TR'),
                   );
                   if (picked != null) {
-                    _endDateController.text = DateFormat('dd.MM.yyyy').format(picked);
+                    _endDateController.text = DateFormat('dd MMMM yyyy', 'tr_TR').format(picked);
                   }
                 },
               ),
