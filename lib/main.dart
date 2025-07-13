@@ -1,5 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tirrr_app/message.dart';
+import 'package:tirrr_app/messages.dart';
 import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'login.dart';
@@ -12,6 +14,7 @@ import 'create-listing.dart';
 import 'search-listing.dart';
 import 'search-listing-result.dart';
 import 'profile.dart';
+
 
 
 
@@ -60,6 +63,8 @@ class MyApp extends StatelessWidget {
         '/search-listing': (context) => const SearchListingPage(),
         '/search-listing-result': (context) => const SearchListingResultPage(),
         '/profile': (context) => const ProfilePage(),
+        '/messages': (context) => const MessagesPage(),
+        '/message': (context) => const MessagePage()
 
       },
     );

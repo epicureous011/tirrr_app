@@ -1,8 +1,7 @@
-
-
 import 'package:flutter/material.dart';
 import 'components/app_header.dart';
 import 'components/drawer.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -13,19 +12,45 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   // Dummy controllers with initial values
-  final _phoneController = TextEditingController(text: '05316882362');
-  final _passwordController = TextEditingController(text: '**********');
-  final _plateController = TextEditingController(text: '42TC432');
-  final _taxController = TextEditingController(text: '4534895739842');
-  final _addressController = TextEditingController(text: 'Levent/İstanbul');
-  final _firstNameController = TextEditingController(text: 'Sude');
-  final _lastNameController = TextEditingController(text: 'Sır');
-  final _birthDateController = TextEditingController(text: '23.10.2005');
-  final _vehicleTypeController = TextEditingController(text: 'Panelvan/ Kamyonet');
-  final _trailerTypeController = TextEditingController(text: 'Frigo/ Kapalı');
-  final _floorType1Controller = TextEditingController(text: 'Tahta Taban/ Sac Taban');
-  final _floorType2Controller = TextEditingController(text: 'Tahta Taban/ Sac Taban');
-  final _maxLoadController = TextEditingController(text: '15 - 30');
+  final _phoneController = TextEditingController();
+  final _plateController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _birthDateController = TextEditingController();
+  final _vehicleTypeController = TextEditingController();
+  final _trailerTypeController = TextEditingController();
+  final _floorType1Controller = TextEditingController();
+  final _maxLoadController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .get();
+    if (snapshot.docs.isNotEmpty) {
+      final data = snapshot.docs.first.data();
+      setState(() {
+        _phoneController.text       = data['phoneNumber'] as String? ?? '';
+        _addressController.text     = data['city']        as String? ?? '';
+        _plateController.text       = data['plate']       as String? ?? '';
+        _firstNameController.text   = data['firstName']   as String? ?? '';
+        _lastNameController.text    = data['secondName']  as String? ?? '';
+        _birthDateController.text   = data['birthDate']   as String? ?? '';
+        _vehicleTypeController.text = data['vehicleType'] as String? ?? '';
+        _trailerTypeController.text = data['backOfVehicleType'] as String? ?? '';
+        _floorType1Controller.text  = data['vehicleBaseType']   as String? ?? '';
+        _maxLoadController.text     = data['maxWeight'] as String? ?? '';
+      });
+    } else {
+      print('No documents found in users collection');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,22 +111,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               const SizedBox(height: 12),
               _buildField(label: 'Telefon Numaranız', controller: _phoneController),
-              const SizedBox(height: 16),
-              _buildField(
-                label: 'Şifreniz',
-                controller: _passwordController,
-                obscureText: true,
-                suffix: Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/forgot-password');
-                    },
-                    child: Text('Şifreyi Değiştir'),
-                    style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size(50, 30)),
-                  ),
-                ),
-              ),
               const SizedBox(height: 24),
               Divider(color: Color(0xFFBDBDBD), thickness: 1),
               const SizedBox(height: 24),
@@ -117,11 +126,9 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 12),
               _buildField(label: 'Plakanız', controller: _plateController),
               const SizedBox(height: 16),
-              _buildField(label: 'Vergi Numaranız', controller: _taxController),
-              const SizedBox(height: 16),
-              _buildField(label: 'Adresiniz', controller: _addressController),
+              _buildField(label: 'İliniz', controller: _addressController),
               const SizedBox(height: 24),
-              Divider(color: Color(0xFFBDBDBD), thickness: 1),
+//            Divider(color: Color(0xFFBDBDBD), thickness: 1),
               const SizedBox(height: 24),
               // Personal Section
               Text(
@@ -136,10 +143,8 @@ class _ProfilePageState extends State<ProfilePage> {
               _buildField(label: 'İsminiz', controller: _firstNameController),
               const SizedBox(height: 16),
               _buildField(label: 'Soyisminiz', controller: _lastNameController),
-              const SizedBox(height: 16),
-              _buildField(label: 'Doğum Tarihiniz', controller: _birthDateController),
               const SizedBox(height: 24),
-              Divider(color: Color(0xFFBDBDBD), thickness: 1),
+//            Divider(color: Color(0xFFBDBDBD), thickness: 1),
               const SizedBox(height: 24),
               // Vehicle Section
               Text(
@@ -157,8 +162,6 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 16),
               _buildField(label: 'Zemin Tipi', controller: _floorType1Controller),
               const SizedBox(height: 16),
-              _buildField(label: 'Zemin Tipi', controller: _floorType2Controller),
-              const SizedBox(height: 16),
               _buildField(label: 'Maksimum Yük Miktarı', controller: _maxLoadController),
               const SizedBox(height: 32),
               // Save Button
@@ -166,8 +169,46 @@ class _ProfilePageState extends State<ProfilePage> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Save profile
+                  onPressed: () async {
+                    final collection = FirebaseFirestore.instance.collection('users');
+                    try {
+                      final snapshot = await collection.get();
+                      if (snapshot.docs.isNotEmpty) {
+                        final docId = snapshot.docs.first.id;
+                        await collection.doc(docId).set({
+                          'phoneNumber': _phoneController.text,
+                          'city':        _addressController.text,
+                          'plate':       _plateController.text,
+                          'firstName':   _firstNameController.text,
+                          'secondName':  _lastNameController.text,
+                          'vehicleType': _vehicleTypeController.text,
+                          'backOfVehicleType': _trailerTypeController.text,
+                          'vehicleBaseType':   _floorType1Controller.text,
+                          'maxWeight':  _maxLoadController.text,
+                        }, SetOptions(merge: true));
+                      } else {
+                        await collection.add({
+                          'phoneNumber': _phoneController.text,
+                          'city':        _addressController.text,
+                          'plate':       _plateController.text,
+                          'firstName':   _firstNameController.text,
+                          'secondName':  _lastNameController.text,
+                          'birthDate':   _birthDateController.text,
+                          'vehicleType': _vehicleTypeController.text,
+                          'backOfVehicleType': _trailerTypeController.text,
+                          'vehicleBaseType':   _floorType1Controller.text,
+                          'maxWeight':  _maxLoadController.text,
+                        });
+                      }
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Profil başarıyla kaydedildi.')),
+                      );
+                    } catch (e) {
+                      print('Error saving profile: $e');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Profil kaydedilirken hata oluştu.')),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF1E2A78),

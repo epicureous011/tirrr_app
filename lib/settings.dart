@@ -53,24 +53,7 @@ class _SettingsPageState extends State<SettingsPage> {
             const Divider(color: Color(0xFFE0E0E0), thickness: 1),
             const SizedBox(height: 16),
 
-            // Eşleşmeler
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.notifications, color: _primaryBlue, size: 24),
-              title: const Text(
-                'Eşleşmeler',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  color: _textBlack,
-                ),
-              ),
-              trailing: Switch(
-                value: _isMatchesOn,
-                onChanged: (v) => setState(() => _isMatchesOn = v),
-                activeColor: _primaryBlue,
-              ),
-            ),
+            
 
             // Şifreni Sıfırla
             ListTile(

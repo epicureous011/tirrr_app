@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -35,20 +36,33 @@ class _SignupScreenState extends State<SignupScreen> {
   Future<void> _onSignupPressed() async {
     if (_formKey.currentState!.validate()) {
       try {
-        // Create user with Firebase Authentication
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _phoneController.text.trim(),
-          password: _passwordController.text,
-        );
+        // Create user with Firebase Authentication and Firestore profile
+        UserCredential cred = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+              email: _phoneController.text.trim(),
+              password: _passwordController.text,
+            );
+        final uid = cred.user!.uid;
+        await FirebaseFirestore.instance.collection('users').doc(uid).set({
+          'phoneNumber': '',
+          'city': '',
+          'plate': '',
+          'firstName': '',
+          'secondName': '',
+          'vehicleType': '',
+          'backOfVehicleType': '',
+          'vehicleBaseType': '',
+          'maxWeight': '',
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Hesap başarıyla oluşturuldu!')),
         );
         // Navigate to home screen after successful signup
         Navigator.pushReplacementNamed(context, '/');
       } on FirebaseAuthException catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message ?? 'Bir hata oluştu')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.message ?? 'Bir hata oluştu')));
       }
     }
   }
@@ -73,10 +87,7 @@ class _SignupScreenState extends State<SignupScreen> {
               const SizedBox(height: 40),
               const Text(
                 'Hesap Oluşturun',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 60),
               Form(
@@ -108,9 +119,11 @@ class _SignupScreenState extends State<SignupScreen> {
                         hintText: 'Şifreniz',
                         prefixIcon: const Icon(Icons.lock),
                         suffixIcon: IconButton(
-                          icon: Icon(_passwordVisible
-                              ? Icons.visibility
-                              : Icons.visibility_off),
+                          icon: Icon(
+                            _passwordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
                           onPressed: () => setState(() {
                             _passwordVisible = !_passwordVisible;
                           }),
@@ -137,9 +150,11 @@ class _SignupScreenState extends State<SignupScreen> {
                         hintText: 'Şifreniz (tekrar)',
                         prefixIcon: const Icon(Icons.lock),
                         suffixIcon: IconButton(
-                          icon: Icon(_confirmVisible
-                              ? Icons.visibility
-                              : Icons.visibility_off),
+                          icon: Icon(
+                            _confirmVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
                           onPressed: () => setState(() {
                             _confirmVisible = !_confirmVisible;
                           }),
