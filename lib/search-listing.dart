@@ -3,8 +3,23 @@ import 'components/app_header.dart';
 import 'components/drawer.dart';
 import 'search-listing-result.dart';
 
-class SearchListingPage extends StatelessWidget {
+class SearchListingPage extends StatefulWidget {
   const SearchListingPage({Key? key}) : super(key: key);
+
+  @override
+  _SearchListingPageState createState() => _SearchListingPageState();
+}
+
+class _SearchListingPageState extends State<SearchListingPage> {
+  final TextEditingController kalkisController = TextEditingController();
+  final TextEditingController varisController = TextEditingController();
+
+  @override
+  void dispose() {
+    kalkisController.dispose();
+    varisController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +32,6 @@ class SearchListingPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Page Title
               Center(
                 child: const Text(
                   'İlan Ara',
@@ -33,30 +47,16 @@ class SearchListingPage extends StatelessWidget {
 
               // Search Fields
               _buildLabel('Kalkış Noktası'),
-              _buildField('Bir konum belirleyin'),
+              _buildField('Bir konum belirleyin', controller: kalkisController),
               const SizedBox(height: 16),
 
-              _buildLabel('Ücret Aralığı'),
-              _buildField('Bir fiyat aralığı seçin'),
-              const SizedBox(height: 16),
-
-              _buildLabel('Başlangıç Tarihi'),
-              _buildField('Bir tarih seçin'),
-              const SizedBox(height: 16),
-
-              _buildLabel('Bitiş Tarihi'),
-              _buildField('Bir tarih seçin'),
-              const SizedBox(height: 16),
-
-              _buildLabel('Maksimum Yük Ağırlığı'),
-              _buildField('Bir ton seçin'),
+              _buildLabel('Varış Noktası'),
+              _buildField('Bir varış noktası belirleyin', controller: varisController),
               const SizedBox(height: 24),
             ],
           ),
         ),
       ),
-
-      // Search Button
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: SizedBox(
@@ -64,7 +64,15 @@ class SearchListingPage extends StatelessWidget {
           height: 50,
           child: ElevatedButton(
             onPressed: () {
-              Navigator.pushNamed(context, '/search-listing-result');
+
+              Navigator.pushNamed(
+                context,
+                '/search-listing-result',
+                arguments: {
+                  'kalkis': kalkisController.text,
+                  'varis': varisController.text,
+                },
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF1E2A78),
@@ -97,8 +105,9 @@ class SearchListingPage extends StatelessWidget {
     );
   }
 
-  Widget _buildField(String hint) {
+  Widget _buildField(String hint, {TextEditingController? controller}) {
     return TextFormField(
+      controller: controller,
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: const TextStyle(

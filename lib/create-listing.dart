@@ -21,6 +21,7 @@ class _CreateListingPageState extends State<CreateListingPage> {
   final TextEditingController _volumeController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -138,10 +139,16 @@ class _CreateListingPageState extends State<CreateListingPage> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () async {
+                  onPressed: _isLoading ? null : () async {
+                    setState(() {
+                      _isLoading = true;
+                    });
                     final user = FirebaseAuth.instance.currentUser;
                     if (user != null) {
+                      final QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('posts').get();
+                      final int newId = snapshot.docs.length + 1;
                       await FirebaseFirestore.instance.collection('posts').add({
+                        'id': newId,
                         'origin': _originController.text,
                         'destination': _destinationController.text,
                         'weight': _weightController.text,
@@ -163,7 +170,7 @@ class _CreateListingPageState extends State<CreateListingPage> {
                       _endDateController.clear();
 
                       // Show success alert
-                      showDialog(
+                      await showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
                           content: const Text('Başarılı bir şekilde paylaşıldı!'),
@@ -175,6 +182,9 @@ class _CreateListingPageState extends State<CreateListingPage> {
                           ],
                         ),
                       );
+                      setState(() {
+                        _isLoading = false;
+                      });
                       // TODO: handle post submission success (e.g., navigate back or show a message)
                     }
                     // TODO: handle user not logged in case
