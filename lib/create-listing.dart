@@ -4,6 +4,7 @@ import 'components/app_header.dart';
 import 'components/drawer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '/utils/eightyOneCities.dart';
 
 class CreateListingPage extends StatefulWidget {
   const CreateListingPage({Key? key}) : super(key: key);
@@ -21,6 +22,8 @@ class _CreateListingPageState extends State<CreateListingPage> {
   final TextEditingController _volumeController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
+  String? selectedOrigin;
+  String? selectedDestination;
   bool _isLoading = false;
 
   @override
@@ -47,11 +50,29 @@ class _CreateListingPageState extends State<CreateListingPage> {
 
               // Form Fields
               _buildLabel('Kalkış Noktası'),
-              _buildField('Bir konum belirleyin', _originController),
+              _buildDropdown(
+                'Bir konum belirleyin',
+                selectedValue: selectedOrigin,
+                onChanged: (value) {
+                  setState(() {
+                    selectedOrigin = value;
+                    _originController.text = value ?? '';
+                  });
+                },
+              ),
               const SizedBox(height: 16),
 
               _buildLabel('Varış Noktası'),
-              _buildField('Bir konum belirleyin', _destinationController),
+              _buildDropdown(
+                'Bir konum belirleyin',
+                selectedValue: selectedDestination,
+                onChanged: (value) {
+                  setState(() {
+                    selectedDestination = value;
+                    _destinationController.text = value ?? '';
+                  });
+                },
+              ),
               const SizedBox(height: 16),
 
               _buildLabel('Ağırlık(Ton)'),
@@ -249,6 +270,55 @@ class _CreateListingPageState extends State<CreateListingPage> {
           borderSide: const BorderSide(color: Colors.black, width: 2),
         ),
       ),
+    );
+  }
+
+  Widget _buildDropdown(
+    String hint, {
+    String? selectedValue,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      value: selectedValue,
+      dropdownColor: Colors.grey.shade200,
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.normal,
+          color: Colors.black,
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.black, width: 2),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.black, width: 2),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.black, width: 2),
+        ),
+      ),
+      items: provinces.asMap().entries.map((entry) {
+        final idx = entry.key;
+        final city = entry.value;
+        return DropdownMenuItem<String>(
+          value: city,
+          child: Text(
+            idx == 0 ? 'Şehir Seçin' : city,
+            style: idx == 0
+                ? const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  )
+                : null,
+          ),
+        );
+      }).toList(),
+      onChanged: onChanged,
     );
   }
 

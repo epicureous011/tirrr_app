@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'components/app_header.dart';
 import 'components/drawer.dart';
-import 'search-listing-result.dart';
 import '/utils/eightyOneCities.dart';
 
 class SearchListingPage extends StatefulWidget {
@@ -14,6 +13,9 @@ class SearchListingPage extends StatefulWidget {
 class _SearchListingPageState extends State<SearchListingPage> {
   final TextEditingController kalkisController = TextEditingController();
   final TextEditingController varisController = TextEditingController();
+
+  String? selectedKalkis;
+  String? selectedVaris;
 
   @override
   void dispose() {
@@ -48,11 +50,29 @@ class _SearchListingPageState extends State<SearchListingPage> {
 
               // Search Fields
               _buildLabel('Kalkış Noktası'),
-              _buildField('Bir konum belirleyin', controller: kalkisController),
+              _buildDropdown(
+                'Bir konum belirleyin',
+                selectedValue: selectedKalkis,
+                onChanged: (value) {
+                  setState(() {
+                    selectedKalkis = value;
+                    kalkisController.text = value ?? '';
+                  });
+                },
+              ),
               const SizedBox(height: 16),
 
               _buildLabel('Varış Noktası'),
-              _buildField('Bir varış noktası belirleyin', controller: varisController),
+              _buildDropdown(
+                'Bir varış noktası belirleyin',
+                selectedValue: selectedVaris,
+                onChanged: (value) {
+                  setState(() {
+                    selectedVaris = value;
+                    varisController.text = value ?? '';
+                  });
+                },
+              ),
               const SizedBox(height: 24),
             ],
           ),
@@ -130,6 +150,54 @@ class _SearchListingPageState extends State<SearchListingPage> {
           borderSide: const BorderSide(color: Colors.black, width: 2),
         ),
       ),
+    );
+  }
+
+  Widget _buildDropdown(
+    String hint, {
+    String? selectedValue,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      dropdownColor: Colors.grey.shade200,
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.normal,
+          color: Color(0xFF828282),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.black, width: 2),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.black, width: 2),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.black, width: 2),
+        ),
+      ),
+      items: provinces.asMap().entries.map((entry) {
+        final idx = entry.key;
+        final city = entry.value;
+        return DropdownMenuItem<String>(
+          value: city,
+          child: Text(
+            idx == 0 ? 'Şehir Seçin' : city,
+            style: idx == 0
+                ? const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  )
+                : null,
+          ),
+        );
+      }).toList(),
+      onChanged: onChanged,
     );
   }
 }
