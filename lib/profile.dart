@@ -36,24 +36,28 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _loadUserData() async {
-    final snapshot = await FirebaseFirestore.instance
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+    final doc = await FirebaseFirestore.instance
         .collection('users')
+        .doc(uid)
         .get();
-    if (snapshot.docs.isNotEmpty) {
-      final data = snapshot.docs.first.data();
+    if (doc.exists) {
+      final data = doc.data()!;
       setState(() {
-        _phoneController.text       = data['phoneNumber'] as String? ?? '';
-        _addressController.text     = data['city']        as String? ?? '';
-        _plateController.text       = data['plate']       as String? ?? '';
-        _firstNameController.text   = data['firstName']   as String? ?? '';
-        _lastNameController.text    = data['secondName']  as String? ?? '';        _vehicleTypeController.text = data['vehicleType'] as String? ?? '';
+        _phoneController.text       = data['phoneNumber']   as String? ?? '';
+        _addressController.text     = data['city']          as String? ?? '';
+        _plateController.text       = data['plate']         as String? ?? '';
+        _firstNameController.text   = data['firstName']     as String? ?? '';
+        _lastNameController.text    = data['secondName']    as String? ?? '';
+        _vehicleTypeController.text = data['vehicleType']   as String? ?? '';
         _trailerTypeController.text = data['backOfVehicleType'] as String? ?? '';
         _floorType1Controller.text  = data['vehicleBaseType']   as String? ?? '';
-        _maxLoadController.text     = data['maxWeight'] as String? ?? '';
+        _maxLoadController.text     = data['maxWeight']     as String? ?? '';
       });
       await _loadProfilePhoto();
     } else {
-      print('No documents found in users collection');
+      print('Profil dokümanı bulunamadı: $uid');
     }
   }
 
@@ -222,42 +226,28 @@ class _ProfilePageState extends State<ProfilePage> {
                 height: 50,
                 child: ElevatedButton(
                   onPressed: () async {
-                    final collection = FirebaseFirestore.instance.collection('users');
+                    final uid = FirebaseAuth.instance.currentUser?.uid;
+                    if (uid == null) return;
+                    final docRef = FirebaseFirestore.instance.collection('users').doc(uid);
                     try {
-                      final snapshot = await collection.get();
-                      if (snapshot.docs.isNotEmpty) {
-                        final docId = snapshot.docs.first.id;
-                        await collection.doc(docId).set({
-                          'phoneNumber': _phoneController.text,
-                          'city':        _addressController.text,
-                          'plate':       _plateController.text,
-                          'firstName':   _firstNameController.text,
-                          'secondName':  _lastNameController.text,
-                          'vehicleType': _vehicleTypeController.text,
-                          'backOfVehicleType': _trailerTypeController.text,
-                          'vehicleBaseType':   _floorType1Controller.text,
-                          'maxWeight':  _maxLoadController.text,
-                        }, SetOptions(merge: true));
-                      } else {
-                        await collection.add({
-                          'phoneNumber': _phoneController.text,
-                          'city':        _addressController.text,
-                          'plate':       _plateController.text,
-                          'firstName':   _firstNameController.text,
-                          'secondName':  _lastNameController.text,
-                          'vehicleType': _vehicleTypeController.text,
-                          'backOfVehicleType': _trailerTypeController.text,
-                          'vehicleBaseType':   _floorType1Controller.text,
-                          'maxWeight':  _maxLoadController.text,
-                        });
-                      }
+                      await docRef.set({
+                        'phoneNumber': _phoneController.text,
+                        'city':        _addressController.text,
+                        'plate':       _plateController.text,
+                        'firstName':   _firstNameController.text,
+                        'secondName':  _lastNameController.text,
+                        'vehicleType': _vehicleTypeController.text,
+                        'backOfVehicleType': _trailerTypeController.text,
+                        'vehicleBaseType':   _floorType1Controller.text,
+                        'maxWeight':   _maxLoadController.text,
+                      }, SetOptions(merge: true));
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Profil başarıyla kaydedildi.')),
+                        const SnackBar(content: Text('Profil başarıyla kaydedildi.')),
                       );
                     } catch (e) {
                       print('Error saving profile: $e');
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Profil kaydedilirken hata oluştu.')),
+                        const SnackBar(content: Text('Profil kaydedilirken hata oluştu.')),
                       );
                     }
                   },

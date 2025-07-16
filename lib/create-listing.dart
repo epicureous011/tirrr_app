@@ -191,6 +191,11 @@ class _CreateListingPageState extends State<CreateListingPage> {
                       _startDateController.clear();
                       _endDateController.clear();
 
+                      setState(() {
+                        selectedOrigin = null;
+                        selectedDestination = null;
+                      });
+
                       // Show success alert
                       await showDialog(
                         context: context,

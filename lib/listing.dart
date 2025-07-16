@@ -121,7 +121,7 @@ class ListingPage extends StatelessWidget {
                           onPressed: () {
                             Navigator.pushNamed(
                               context,
-                              '/chat',
+                              '/messages',
                               arguments: ilanId,
                             );
                           },
