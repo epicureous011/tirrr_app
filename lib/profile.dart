@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'components/app_header.dart';
 import 'components/drawer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -21,6 +25,9 @@ class _ProfilePageState extends State<ProfilePage> {
   final _trailerTypeController = TextEditingController();
   final _floorType1Controller = TextEditingController();
   final _maxLoadController = TextEditingController();
+
+  final ImagePicker _picker = ImagePicker();
+  String? _photoUrl;
 
   @override
   void initState() {
@@ -44,8 +51,48 @@ class _ProfilePageState extends State<ProfilePage> {
         _floorType1Controller.text  = data['vehicleBaseType']   as String? ?? '';
         _maxLoadController.text     = data['maxWeight'] as String? ?? '';
       });
+      await _loadProfilePhoto();
     } else {
       print('No documents found in users collection');
+    }
+  }
+
+  Future<void> _loadProfilePhoto() async {
+    try {
+      final uid = FirebaseAuth.instance.currentUser?.uid;
+      if (uid != null) {
+        final ref = FirebaseStorage.instance
+            .ref()
+            .child('profilePhotos/$uid.jpg');
+        final url = await ref.getDownloadURL();
+        setState(() {
+          _photoUrl = url;
+        });
+      }
+    } catch (e) {
+      // No photo found or error
+      print('Error loading profile photo: $e');
+    }
+  }
+
+  Future<void> _pickAndUploadImage() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+    final picked = await _picker.pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      final file = File(picked.path);
+      final ref = FirebaseStorage.instance
+          .ref()
+          .child('profilePhotos/$uid.jpg');
+      try {
+        await ref.putFile(file);
+        final url = await ref.getDownloadURL();
+        setState(() {
+          _photoUrl = url;
+        });
+      } catch (e) {
+        print('Error uploading profile photo: $e');
+      }
     }
   }
 
@@ -79,18 +126,26 @@ class _ProfilePageState extends State<ProfilePage> {
                     CircleAvatar(
                       radius: 48,
                       backgroundColor: Color(0xFFE5E5E5),
-                      child: Icon(Icons.person, size: 48, color: Colors.white),
+                      backgroundImage: _photoUrl != null
+                          ? NetworkImage(_photoUrl!)
+                          : null,
+                      child: _photoUrl == null
+                          ? Icon(Icons.person, size: 48, color: Colors.white)
+                          : null,
                     ),
                     Positioned(
                       bottom: 0,
                       right: 0,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Color(0xFF1E2A78),
-                          shape: BoxShape.circle,
+                      child: GestureDetector(
+                        onTap: _pickAndUploadImage,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Color(0xFF1E2A78),
+                            shape: BoxShape.circle,
+                          ),
+                          padding: const EdgeInsets.all(6),
+                          child: Icon(Icons.edit, size: 16, color: Colors.white),
                         ),
-                        padding: const EdgeInsets.all(6),
-                        child: Icon(Icons.edit, size: 16, color: Colors.white),
                       ),
                     ),
                   ],

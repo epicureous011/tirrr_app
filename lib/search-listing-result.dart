@@ -19,6 +19,7 @@ class SearchListingResultPage extends StatelessWidget {
     if (varis.isNotEmpty) {
       query = query.where('destination', isEqualTo: varis);
     }
+    query = query.where('isMatched', isEqualTo: false);
     final postsStream = query.snapshots();
 
     Widget _buildInfoRow(String label, String value) {

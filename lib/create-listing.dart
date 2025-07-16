@@ -158,6 +158,7 @@ class _CreateListingPageState extends State<CreateListingPage> {
                         'startDate': _startDateController.text,
                         'endDate': _endDateController.text,
                         'uid': user.uid,
+                        'isMatched': false,
                       });
                       // Clear all form fields
                       _originController.clear();
