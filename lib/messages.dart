@@ -46,21 +46,20 @@ class _MessagesPageState extends State<MessagesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)?.settings.arguments;
-    if (args == null || args is! String) {
+    final currentUid = FirebaseAuth.instance.currentUser?.uid;
+    if (currentUid == null) {
       return Scaffold(
         appBar: const AppHeader(),
         drawer: AppDrawer(),
-        body: const Center(child: Text('ilanId bulunamadı', style: TextStyle(fontSize: 16))),
+        body: const Center(child: Text('Oturum açılmamış', style: TextStyle(fontSize: 16))),
       );
     }
-    final ilanId = args;
     final chatsQuery = FirebaseFirestore.instance
         .collection('chats')
-        .where('ilanId', isEqualTo: ilanId);
+        .where('participants', arrayContains: currentUid);
 
     return FutureBuilder<void>(
-      future: _ensureChat(ilanId),
+      future: Future.value(),
       builder: (context, snapshotEns) {
         if (snapshotEns.connectionState != ConnectionState.done) {
           return Scaffold(
@@ -149,25 +148,39 @@ class _MessagesPageState extends State<MessagesPage> {
                           final timeStr = timestamp != null
                               ? DateFormat.Hm().format(timestamp.toDate())
                               : '';
-                          final unreadCount = data['unreadCount'] as int?;
-                          final participantsRaw = data['participants'] as List<dynamic>? ?? [];
-                          final participants = participantsRaw.whereType<String>().toList();
-                          final name = participants.isNotEmpty ? participants.join(', ') : 'Bilinmeyen';
-
-                          return InkWell(
-                            onTap: () {
-                              Navigator.pushNamed(
-                                context,
-                                '/message',
-                                arguments: doc.id,
+                          // Determine the other user’s UID
+                          final participants = (data['participants'] as List<dynamic>).cast<String>();
+                          final otherUid = participants.firstWhere((u) => u != currentUid, orElse: () => currentUid);
+                          // Fetch their profile
+                          return FutureBuilder<DocumentSnapshot>(
+                            future: FirebaseFirestore.instance.collection('users').doc(otherUid).get(),
+                            builder: (context, userSnap) {
+                              if (userSnap.connectionState != ConnectionState.done) {
+                                return const SizedBox(
+                                  height: 72,
+                                  child: Center(child: CircularProgressIndicator()),
+                                );
+                              }
+                              final userData = userSnap.data!.data()! as Map<String, dynamic>;
+                              final fullName = '${userData['firstName'] ?? ''} ${userData['secondName'] ?? ''}'.trim();
+                              final photoUrl = userData['photoUrl'] as String?;
+                              return InkWell(
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    '/message',
+                                    arguments: doc.id,
+                                  );
+                                },
+                                child: MessageListItem(
+                                  name: fullName.isNotEmpty ? fullName : 'Bilinmeyen',
+                                  avatarUrl: photoUrl,
+                                  message: data['lastMessage'] as String? ?? '',
+                                  time: timeStr,
+                                  unreadCount: data['unreadCount'] as int?,
+                                ),
                               );
                             },
-                            child: MessageListItem(
-                              name: name,
-                              message: lastMessage,
-                              time: timeStr,
-                              unreadCount: unreadCount,
-                            ),
                           );
                         },
                       );
@@ -225,6 +238,7 @@ class MessageListItem extends StatelessWidget {
   final String message;
   final String time;
   final int? unreadCount;
+  final String? avatarUrl;
 
   const MessageListItem({
     Key? key,
@@ -232,6 +246,7 @@ class MessageListItem extends StatelessWidget {
     required this.message,
     required this.time,
     this.unreadCount,
+    this.avatarUrl,
   }) : super(key: key);
 
   @override
@@ -249,10 +264,13 @@ class MessageListItem extends StatelessWidget {
           CircleAvatar(
             radius: 24,
             backgroundColor: primaryBlue,
-            child: Text(
-              name.isNotEmpty ? name[0] : '',
-              style: const TextStyle(color: Colors.white),
-            ),
+            backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl!) : null,
+            child: avatarUrl == null
+                ? Text(
+                    name.isNotEmpty ? name[0] : '',
+                    style: const TextStyle(color: Colors.white),
+                  )
+                : null,
           ),
           const SizedBox(width: 12),
           Expanded(
