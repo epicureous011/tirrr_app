@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'components/app_header.dart';
 import 'components/drawer.dart';
 //buradayız
@@ -27,11 +28,11 @@ class ListingPage extends StatelessWidget {
           }
           final postData = postSnapshot.data!.data() as Map<String, dynamic>? ?? {};
           final dynamic ilanNo = postData['id']?.toString() ?? ilanId;
-          final uid = postData['uid'] as String?;
+          final publisherUid = postData['uid'] as String?;
           return FutureBuilder<DocumentSnapshot>(
             future: FirebaseFirestore.instance
                 .collection('users')
-                .doc(uid)
+                .doc(publisherUid)
                 .get(),
             builder: (context, userSnapshot) {
               String fullName = '';
@@ -118,11 +119,41 @@ class ListingPage extends StatelessWidget {
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
+                            final currentUid = FirebaseAuth.instance.currentUser!.uid;
+                            String chatId;
+                            // Query chats where current user is a participant
+                            final chatQuery = await FirebaseFirestore.instance
+                                .collection('chats')
+                                .where('participants', arrayContains: currentUid)
+                                .get();
+                            // Look for an existing chat with both participants
+                            DocumentSnapshot? existingChat;
+                            for (var doc in chatQuery.docs) {
+                              final participants = List<String>.from(doc['participants'] as List);
+                              if (participants.contains(publisherUid) && participants.contains(currentUid)) {
+                                existingChat = doc;
+                                break;
+                              }
+                            }
+                            if (existingChat != null) {
+                              chatId = existingChat.id;
+                            } else {
+                              // Create a new chat document
+                              final newChatRef = await FirebaseFirestore.instance.collection('chats').add({
+                                'participants': [currentUid, publisherUid],
+                                'createdAt': FieldValue.serverTimestamp(),
+                                'ilanId': ilanId,
+                                'lastMessage': '',
+                                'lastMessageDate': FieldValue.serverTimestamp(),
+                                'unreadCount': 0,
+                              });
+                              chatId = newChatRef.id;
+                            }
                             Navigator.pushNamed(
                               context,
                               '/message',
-                              arguments: ilanId,
+                              arguments: chatId,
                             );
                           },
                           style: ElevatedButton.styleFrom(

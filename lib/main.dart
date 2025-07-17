@@ -76,8 +76,10 @@ class MyApp extends StatelessWidget {
         '/search-listing-result': (context) => const SearchListingResultPage(),
         '/profile': (context) => const ProfilePage(),
         '/messages': (context) => const MessagesPage(),
-        '/message': (context) => const MessagePage()
-
+        '/message': (context) {
+          final chatId = ModalRoute.of(context)!.settings.arguments as String;
+          return MessagePage(chatId: chatId);
+        },
       },
     );
   }
